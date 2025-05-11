@@ -1,195 +1,203 @@
-"use client"
+"use client";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// components/ProjectsSection.jsx
-import { motion } from "framer-motion";
-import { ExternalLink, Github } from "lucide-react";
-import Image from "next/image";
+export default function ProjectsSection() {
+  const sectionRef = useRef(null);
+  const projectsRef = useRef(null);
 
-const ProjectCard = ({ project }) => {
-  return (
-    <motion.div
-      whileHover={{ y: -10 }}
-      className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
-    >
-      <div className="h-48 bg-gray-200 dark:bg-gray-700 relative">
-        <Image
-          fill
-          src={project.image || "/api/placeholder/600/400"}
-          alt={project.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute top-2 right-2 flex space-x-2">
-          {project.badges.map((badge, index) => (
-            <span
-              key={index}
-              className={`bg-${badge.color}-100 dark:bg-${badge.color}-900 text-${badge.color}-600 dark:text-${badge.color}-400 text-xs px-2 py-1 rounded`}
-            >
-              {badge.text}
-            </span>
-          ))}
-        </div>
-      </div>
-      <div className="p-6">
-        <h3 className="font-bold text-xl mb-2">{project.title}</h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
-          {project.description}
-        </p>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {project.technologies.map((tech, index) => (
-            <span
-              key={index}
-              className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded"
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
-        <div className="flex space-x-4">
-          {project.demo && (
-            <a
-              href={project.demo}
-              className="flex items-center text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              <ExternalLink size={16} className="mr-1" /> Live Demo
-            </a>
-          )}
-          {project.github && (
-            <a
-              href={project.github}
-              className="flex items-center text-gray-600 dark:text-gray-400 hover:underline"
-            >
-              <Github size={16} className="mr-1" /> GitHub
-            </a>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-};
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
 
-const ProjectsSection = () => {
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
+    const ctx = gsap.context(() => {
+      // Create stacked card effect for projects
+      const projects = gsap.utils.toArray(".project-card");
 
+      if (projects.length > 0) {
+        // Set initial positions - stacked with perspective
+        gsap.set(projects, {
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          xPercent: -50,
+          yPercent: -50,
+          z: (i) => i * -300, // Stack them in 3D space
+          opacity: (i) => 1 - i * 0.2, // Fade out as they go back
+          scale: (i) => 1 - i * 0.05, // Slightly smaller as they go back
+          rotationY: (i) => (i % 2 === 0 ? 3 : -3), // Slight alternating rotation
+        });
+
+        // Create the sequence as you scroll
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "+=" + projects.length * 300,
+          pin: true,
+          scrub: 1,
+          animation: gsap.to(projects, {
+            z: (i, target) => (projects.length - i) * 300, // Move to front
+            opacity: 1,
+            scale: 1,
+            rotationY: 0,
+            stagger: 0.5,
+            ease: "power1.inOut",
+          }),
+        });
+      }
+
+      // Title animation
+      gsap.from(".section-title", {
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        },
+        y: 50,
+        opacity: 0,
+        duration: 1,
+        ease: "power3.out",
+      });
+
+      // Floating elements animation
+      gsap.to(".floating-element", {
+        y: (i) => (i % 2 === 0 ? 20 : -20),
+        rotation: (i) => (i % 2 === 0 ? 10 : -10),
+        duration: 3,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        stagger: 0.2,
+      });
+    });
+
+    return () => ctx.revert();
+  }, []);
+
+  // Sample project data
   const projects = [
     {
+      id: 1,
+      title: "AI-Driven Portfolio",
+      description:
+        "Interactive portfolio with GSAP animations and AI-powered features.",
+      tags: ["React", "GSAP", "AI", "TailwindCSS"],
+      image: "/project1.jpg",
+    },
+    {
+      id: 2,
       title: "E-Commerce Platform",
       description:
-        "A complete e-commerce solution with product management, cart functionality, and payment processing using Stripe.",
-      image: "/api/placeholder/600/400",
-      badges: [
-        { text: "Full Stack", color: "blue" },
-        { text: "React", color: "green" },
-      ],
-      technologies: ["Next.js", "Node.js", "MongoDB", "Stripe"],
-      demo: "#",
-      github: "#",
+        "Modern e-commerce solution with real-time inventory and AR product views.",
+      tags: ["Next.js", "3D", "API", "Payments"],
+      image: "/project2.jpg",
     },
     {
-      title: "Task Management App",
+      id: 3,
+      title: "Web3 Dashboard",
       description:
-        "A responsive task manager with drag-and-drop interface, reminders, and collaborative features.",
-      image: "/api/placeholder/600/400",
-      badges: [
-        { text: "Frontend", color: "purple" },
-        { text: "Mobile", color: "yellow" },
-      ],
-      technologies: ["React", "Firebase", "Tailwind CSS"],
-      demo: "#",
-      github: "#",
+        "Crypto portfolio tracker with animated data visualizations.",
+      tags: ["Web3", "React", "Charts", "API"],
+      image: "/project3.jpg",
     },
     {
-      title: "Real Estate Dashboard",
-      description:
-        "An analytics dashboard for real estate agents with property management and client tracking.",
-      image: "/api/placeholder/600/400",
-      badges: [
-        { text: "Dashboard", color: "red" },
-        { text: "SaaS", color: "indigo" },
-      ],
-      technologies: ["React", "Node.js", "Express", "Chart.js"],
-      demo: "#",
-      github: "#",
-    },
-    {
-      title: "Social Media App",
-      description:
-        "A social platform with real-time chat, post management, and user profiles.",
-      image: "/api/placeholder/600/400",
-      badges: [
-        { text: "Full Stack", color: "blue" },
-        { text: "Real-time", color: "green" },
-      ],
-      technologies: ["React", "Socket.io", "Express", "MongoDB"],
-      demo: "#",
-      github: "#",
-    },
-    {
-      title: "Recipe Finder",
-      description:
-        "A web app to discover recipes based on available ingredients with favoriting and meal planning.",
-      image: "/api/placeholder/600/400",
-      badges: [
-        { text: "Frontend", color: "purple" },
-        { text: "API", color: "teal" },
-      ],
-      technologies: ["React", "Redux", "Spoonacular API"],
-      demo: "#",
-      github: "#",
-    },
-    {
-      title: "Fitness Tracker",
-      description:
-        "A fitness tracking application with workout plans, progress graphs, and social features.",
-      image: "/api/placeholder/600/400",
-      badges: [
-        { text: "Mobile", color: "yellow" },
-        { text: "Health", color: "pink" },
-      ],
-      technologies: ["React Native", "Firebase", "Redux"],
-      demo: "#",
-      github: "#",
+      id: 4,
+      title: "Digital Twin Application",
+      description: "IoT monitoring system with real-time 3D visualization.",
+      tags: ["Three.js", "IoT", "React", "WebSockets"],
+      image: "/project4.jpg",
     },
   ];
 
   return (
-    <section id="projects" className="py-16">
-      <div className="container mx-auto px-4">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          variants={fadeIn}
-          className="mb-12 text-center"
-        >
-          <h2 className="text-3xl font-bold mb-2">Featured Projects</h2>
-          <div className="w-20 h-1 bg-blue-600 dark:bg-blue-400 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Here are some of my recent projects. Each one was carefully crafted
-            to solve specific problems and showcase my skills.
-          </p>
-        </motion.div>
+    <section
+      ref={sectionRef}
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-900 py-20"
+    >
+      {/* Background elements */}
+      <div className="absolute inset-0 z-0">
+        <div className="floating-element absolute top-20 left-20 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-xl"></div>
+        <div className="floating-element absolute bottom-40 right-20 w-40 h-40 bg-gradient-to-bl from-cyan-500/10 to-blue-500/10 rounded-full blur-xl"></div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, index) => (
-            <motion.div
-              key={index}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              variants={fadeIn}
+        {/* Grid lines */}
+        <div className="absolute inset-0 grid grid-cols-6 gap-4 opacity-20">
+          {Array(6)
+            .fill()
+            .map((_, i) => (
+              <div key={i} className="border-l border-cyan-500/20 h-full"></div>
+            ))}
+          {Array(6)
+            .fill()
+            .map((_, i) => (
+              <div
+                key={i}
+                className="absolute border-t border-cyan-500/20 w-full"
+                style={{ top: `${i * 20}%` }}
+              ></div>
+            ))}
+        </div>
+      </div>
+
+      {/* Section content */}
+      <div className="relative z-10 container mx-auto px-6 text-center">
+        <h2 className="section-title text-4xl md:text-5xl font-bold text-white mb-16">
+          Featured{" "}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
+            Projects
+          </span>
+        </h2>
+
+        {/* 3D stacked project cards */}
+        <div ref={projectsRef} className="relative h-[500px] perspective-1000">
+          {projects.map((project) => (
+            <div
+              key={project.id}
+              className="project-card w-full max-w-2xl mx-auto bg-gray-800/80 backdrop-blur-md rounded-xl overflow-hidden shadow-xl"
             >
-              <ProjectCard project={project} />
-            </motion.div>
+              <div className="h-48 bg-gradient-to-r from-blue-600 to-purple-600 relative overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center text-white text-opacity-30 text-9xl font-bold">
+                  {project.id}
+                </div>
+              </div>
+
+              <div className="p-8 text-left">
+                <h3 className="text-2xl font-bold text-white mb-3">
+                  {project.title}
+                </h3>
+                <p className="text-gray-300 mb-5">{project.description}</p>
+
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {project.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-gray-700 text-cyan-400 text-sm font-medium rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <button className="px-5 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/30 transform hover:translate-y-[-2px]">
+                  View Project
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Navigation indicators */}
+        <div className="mt-12 flex items-center justify-center gap-2">
+          {projects.map((_, index) => (
+            <button
+              key={index}
+              className={`w-3 h-3 rounded-full ${
+                index === 0 ? "bg-cyan-500" : "bg-gray-600"
+              }`}
+              aria-label={`Go to project ${index + 1}`}
+            ></button>
           ))}
         </div>
       </div>
     </section>
   );
-};
-
-export default ProjectsSection;
+}

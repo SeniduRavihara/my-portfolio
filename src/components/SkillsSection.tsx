@@ -1,155 +1,215 @@
-"use client"
+"use client";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// components/SkillsSection.jsx
-import { motion } from "framer-motion";
+export default function SkillsSection() {
+  const sectionRef = useRef(null);
+  const headingRef = useRef(null);
+  const skillsRef = useRef(null);
 
-const SkillCard = ({ title, icon, color, skills }) => {
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      // Heading animation - simplified
+      gsap.from(headingRef.current, {
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%", // Adjust trigger point to be more responsive
+          toggleActions: "play none none reverse",
+        },
+        y: 30, // Reduced y-movement
+        opacity: 0,
+        duration: 0.8, // Faster animation
+        ease: "power2.out", // Simpler easing
+      });
+
+      // Progress bar animations - optimized
+      const skillBars = skillsRef.current.querySelectorAll(".skill-progress");
+      skillBars.forEach((bar) => {
+        const progressValue = bar.getAttribute("data-progress");
+        const progressBar = bar.querySelector(".progress-fill");
+
+        gsap.fromTo(
+          progressBar,
+          { width: "0%" },
+          {
+            width: `${progressValue}%`,
+            duration: 1.2, // Slightly faster
+            ease: "power1.out", // Simpler easing
+            scrollTrigger: {
+              trigger: bar,
+              start: "top 85%", // Earlier trigger point
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      });
+
+      // Skill icons animation - optimized for better performance
+      const skillIcons = skillsRef.current.querySelectorAll(".skill-icon");
+      gsap.from(skillIcons, {
+        scrollTrigger: {
+          trigger: skillsRef.current,
+          start: "top 80%", // Earlier trigger point
+          toggleActions: "play none none reverse",
+        },
+        scale: 0.8, // Less dramatic scale
+        opacity: 0,
+        duration: 0.6, // Faster animation
+        stagger: 0.08, // Faster stagger
+        ease: "back.out(1.5)", // Reduced overshoot
+      });
+
+      // Make sure this section integrates properly with scroll
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top bottom",
+        end: "bottom top",
+        markers: false, // Turn on for debugging
+        onEnter: () => {
+          // Ensure section is visible when entered
+          gsap.to(sectionRef.current, { autoAlpha: 1, duration: 0.3 });
+        },
+      });
+    });
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <motion.div
-      whileHover={{ y: -5 }}
-      className={`bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300`}
+    <section
+      ref={sectionRef}
+      className="py-20 min-h-screen bg-gradient-to-b from-gray-900 to-black relative overflow-hidden flex items-center"
     >
-      <h3 className="text-xl font-semibold mb-4 flex items-center">
-        <span
-          className={`bg-${color}-100 dark:bg-${color}-900 text-${color}-600 dark:text-${color}-400 p-2 rounded mr-3`}
-        >
-          {icon}
-        </span>
-        {title}
-      </h3>
-      <ul className="space-y-2">
-        {skills.map((skill, index) => (
-          <li key={index} className="flex justify-between items-center">
-            <span>{skill.name}</span>
-            <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div
-                className={`bg-${color}-600 dark:bg-${color}-400 h-2 rounded-full`}
-                style={{ width: `${skill.level}%` }}
-              ></div>
+      {/* Background elements */}
+      <div className="absolute top-0 left-0 w-full h-full">
+        <div className="absolute top-1/4 left-10 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-1/3 right-10 w-40 h-40 bg-purple-500/5 rounded-full blur-2xl"></div>
+
+        {/* Added grid background for visual interest */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+      </div>
+
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="text-center mb-16">
+          <h2
+            ref={headingRef}
+            className="text-4xl md:text-5xl font-bold text-white mb-4"
+          >
+            Technical <span className="text-cyan-400">Skills</span>
+          </h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-cyan-500 to-blue-600 mx-auto"></div>
+        </div>
+
+        <div ref={skillsRef} className="max-w-4xl mx-auto">
+          {/* Technical skills with progress bars */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
+            <div>
+              <div className="skill-progress mb-8" data-progress="95">
+                <div className="flex justify-between mb-2">
+                  <span className="text-lg font-medium text-white">
+                    React.js
+                  </span>
+                  <span className="text-cyan-400 font-semibold">95%</span>
+                </div>
+                <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+                  <div className="progress-fill h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full w-0"></div>
+                </div>
+              </div>
+
+              <div className="skill-progress mb-8" data-progress="85">
+                <div className="flex justify-between mb-2">
+                  <span className="text-lg font-medium text-white">
+                    Next.js
+                  </span>
+                  <span className="text-cyan-400 font-semibold">85%</span>
+                </div>
+                <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+                  <div className="progress-fill h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full w-0"></div>
+                </div>
+              </div>
+
+              <div className="skill-progress" data-progress="90">
+                <div className="flex justify-between mb-2">
+                  <span className="text-lg font-medium text-white">
+                    JavaScript
+                  </span>
+                  <span className="text-cyan-400 font-semibold">90%</span>
+                </div>
+                <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+                  <div className="progress-fill h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full w-0"></div>
+                </div>
+              </div>
             </div>
-          </li>
-        ))}
-      </ul>
-    </motion.div>
-  );
-};
 
-const SkillsSection = () => {
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
+            <div>
+              <div className="skill-progress mb-8" data-progress="80">
+                <div className="flex justify-between mb-2">
+                  <span className="text-lg font-medium text-white">GSAP</span>
+                  <span className="text-cyan-400 font-semibold">80%</span>
+                </div>
+                <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+                  <div className="progress-fill h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full w-0"></div>
+                </div>
+              </div>
 
-  const skills = {
-    frontend: [
-      { name: "React", level: 95 },
-      { name: "Next.js", level: 90 },
-      { name: "Tailwind CSS", level: 85 },
-      { name: "JavaScript", level: 90 },
-      { name: "TypeScript", level: 80 },
-    ],
-    backend: [
-      { name: "Node.js", level: 90 },
-      { name: "Express", level: 85 },
-      { name: "Laravel", level: 75 },
-      { name: "Python", level: 70 },
-      { name: "API Development", level: 90 },
-    ],
-    database: [
-      { name: "MySQL", level: 85 },
-      { name: "MongoDB", level: 80 },
-      { name: "Firebase", level: 90 },
-      { name: "PostgreSQL", level: 75 },
-      { name: "Redis", level: 65 },
-    ],
-    devops: [
-      { name: "Git", level: 95 },
-      { name: "Docker", level: 80 },
-      { name: "CI/CD", level: 85 },
-      { name: "AWS", level: 70 },
-      { name: "Vercel", level: 90 },
-    ],
-  };
+              <div className="skill-progress mb-8" data-progress="75">
+                <div className="flex justify-between mb-2">
+                  <span className="text-lg font-medium text-white">
+                    Tailwind CSS
+                  </span>
+                  <span className="text-cyan-400 font-semibold">75%</span>
+                </div>
+                <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+                  <div className="progress-fill h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full w-0"></div>
+                </div>
+              </div>
 
-  return (
-    <section id="skills" className="py-16 bg-gray-50 dark:bg-gray-800">
-      <div className="container mx-auto px-4">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          variants={fadeIn}
-          className="mb-12 text-center"
-        >
-          <h2 className="text-3xl font-bold mb-2">Skills & Expertise</h2>
-          <div className="w-20 h-1 bg-blue-600 dark:bg-blue-400 mx-auto"></div>
-        </motion.div>
+              <div className="skill-progress" data-progress="88">
+                <div className="flex justify-between mb-2">
+                  <span className="text-lg font-medium text-white">
+                    TypeScript
+                  </span>
+                  <span className="text-cyan-400 font-semibold">88%</span>
+                </div>
+                <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+                  <div className="progress-fill h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full w-0"></div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            variants={fadeIn}
-          >
-            <SkillCard
-              title="Frontend"
-              icon="🎨"
-              color="purple"
-              skills={skills.frontend}
-            />
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            variants={fadeIn}
-          >
-            <SkillCard
-              title="Backend"
-              icon="⚙️"
-              color="green"
-              skills={skills.backend}
-            />
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            variants={fadeIn}
-          >
-            <SkillCard
-              title="Databases"
-              icon="🗄️"
-              color="blue"
-              skills={skills.database}
-            />
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            variants={fadeIn}
-          >
-            <SkillCard
-              title="DevOps & Tools"
-              icon="🛠️"
-              color="orange"
-              skills={skills.devops}
-            />
-          </motion.div>
+          {/* Skill icons area */}
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-8 text-center">
+            {[
+              "HTML5",
+              "CSS3",
+              "Node.js",
+              "MongoDB",
+              "GraphQL",
+              "Git",
+              "Figma",
+              "AWS",
+              "Docker",
+              "Redux",
+              "Firebase",
+              "Three.js",
+            ].map((skill, index) => (
+              <div key={index} className="skill-icon group">
+                <div className="w-16 h-16 bg-gray-800 rounded-lg mx-auto flex items-center justify-center mb-3 group-hover:bg-gray-700 transition-all duration-300 transform group-hover:scale-105 shadow-lg group-hover:shadow-cyan-500/20">
+                  <div className="text-2xl text-cyan-400">
+                    {/* Placeholder for icon */}
+                    {skill.charAt(0)}
+                  </div>
+                </div>
+                <p className="text-gray-300 font-medium">{skill}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
   );
-};
-
-export default SkillsSection;
+}

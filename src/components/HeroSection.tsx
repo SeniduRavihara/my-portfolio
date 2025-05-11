@@ -1,75 +1,148 @@
 "use client";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { TextPlugin } from "gsap/TextPlugin";
 
-// components/HeroSection.jsx
-import { ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
-import Image from "next/image";
+export default function HeroSection() {
+  const titleRef = useRef(null);
+  const subtitleRef = useRef(null);
+  const ctaRef = useRef(null);
+  const sectionRef = useRef(null);
 
-const HeroSection = () => {
+  useEffect(() => {
+    gsap.registerPlugin(TextPlugin);
+
+    // Wait for DOM to be fully ready
+    const ctx = gsap.context(() => {
+      // Initial animation sequence
+      const tl = gsap.timeline({ delay: 0.5 });
+
+      // Animate hero background
+      tl.from(".hero-bg", {
+        scale: 1.1,
+        opacity: 0,
+        duration: 1.5,
+        ease: "power2.out",
+      });
+
+      // Text reveal animation
+      tl.from(
+        titleRef.current,
+        {
+          y: 50,
+          opacity: 0,
+          duration: 1,
+          ease: "back.out(1.7)",
+        },
+        "-=0.8"
+      );
+
+      // Typing effect for subtitle
+      tl.to(
+        subtitleRef.current,
+        {
+          duration: 2,
+          text: {
+            value:
+              "Creating innovative digital experiences with cutting-edge technology",
+            delimiter: "",
+          },
+          ease: "none",
+        },
+        "-=0.3"
+      );
+
+      // Button appearance
+      tl.from(
+        ctaRef.current,
+        {
+          scale: 0.8,
+          opacity: 0,
+          duration: 0.8,
+          ease: "elastic.out(1, 0.3)",
+        },
+        "-=0.5"
+      );
+
+      // Floating animation for hero elements (continuous)
+      gsap.to(".floating", {
+        y: "15px",
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        stagger: 0.2,
+      });
+
+      // Parallax effect on scroll
+      gsap.to(sectionRef.current.querySelectorAll(".parallax"), {
+        y: (i, el) => (parseFloat(el.dataset.speed) || 0.1) * -100,
+        ease: "none",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+    });
+
+    return () => ctx.revert(); // Clean up animations
+  }, []);
+
   return (
     <section
-      id="hero"
-      className="min-h-screen flex flex-col justify-center py-16"
+      ref={sectionRef}
+      className="relative h-screen flex items-center justify-center overflow-hidden"
     >
-      <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="order-2 md:order-1"
-          >
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                John Developer
-              </span>
-            </h1>
-            <h2 className="text-2xl md:text-3xl font-medium mb-6 text-gray-700 dark:text-gray-300">
-              Full Stack Developer | Tech Enthusiast
-            </h2>
-            <p className="text-lg mb-8 text-gray-600 dark:text-gray-400">
-              Building beautiful, accessible, and performant web applications
-              that solve real-world problems.
-            </p>
-            <div className="flex space-x-4">
-              <motion.a
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                href="#projects"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 flex items-center"
-              >
-                View My Work <ArrowRight size={16} className="ml-2" />
-              </motion.a>
-              <motion.a
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                href="#contact"
-                className="bg-transparent border border-blue-600 hover:bg-blue-50 dark:hover:bg-gray-800 text-blue-600 dark:text-blue-400 font-medium py-2 px-6 rounded-lg transition-all duration-300"
-              >
-                Contact Me
-              </motion.a>
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="order-1 md:order-2 flex justify-center"
-          >
-            <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl">
-              <Image
-                width={400}
-                height={400}
-                src="/api/placeholder/400/400"
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </motion.div>
+      {/* Animated background */}
+      <div className="hero-bg absolute top-0 left-0 w-full h-full bg-black">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-900/40 to-purple-900/40"></div>
+
+        {/* Floating shapes with parallax effect */}
+        <div
+          className="parallax absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-blue-500/10 blur-3xl floating"
+          data-speed="0.2"
+        ></div>
+        <div
+          className="parallax absolute bottom-1/3 right-1/3 w-80 h-80 rounded-full bg-purple-500/10 blur-3xl floating"
+          data-speed="0.3"
+        ></div>
+        <div
+          className="parallax absolute top-2/3 left-1/2 w-40 h-40 rounded-full bg-cyan-500/10 blur-3xl floating"
+          data-speed="0.15"
+        ></div>
+      </div>
+
+      {/* Hero content */}
+      <div className="hero-content relative z-10 text-center px-4 max-w-5xl">
+        <h1
+          ref={titleRef}
+          className="text-5xl md:text-7xl font-bold text-white mb-6 animate-element"
+        >
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500">
+            Next-Gen Portfolio Experience
+          </span>
+        </h1>
+
+        <p
+          ref={subtitleRef}
+          className="text-xl md:text-2xl text-gray-300 mb-8 h-16 animate-element"
+        ></p>
+
+        <div ref={ctaRef} className="animate-element">
+          <button className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-cyan-500/30">
+            Explore My Work
+          </button>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="w-8 h-14 rounded-full border-2 border-white/30 flex justify-center p-2">
+            <div className="w-1 h-3 bg-white/70 rounded-full"></div>
+          </div>
         </div>
       </div>
     </section>
   );
-};
-
-export default HeroSection;
+}
