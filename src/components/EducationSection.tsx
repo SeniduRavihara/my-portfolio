@@ -1,8 +1,7 @@
-"use client"
+"use client";
 
 // components/EducationSection.tsx
 import { motion } from "framer-motion";
-import Image from "next/image";
 
 const educationData = [
   {
@@ -47,12 +46,12 @@ function EducationSection() {
             >
               {/* Logo */}
               <div className="w-16 h-16 flex-shrink-0">
-                <Image
+                {/* <Image
                   fill
                   src={edu.logo}
                   alt={edu.university}
                   className="rounded-full w-full h-full object-cover border border-gray-200 dark:border-gray-700"
-                />
+                /> */}
               </div>
 
               {/* Content */}
