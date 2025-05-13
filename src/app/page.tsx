@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { JSX, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollSmoother } from "gsap/ScrollSmoother";
@@ -11,9 +11,9 @@ import HeroSection from "@/components/HeroSection";
 import ProjectsSection from "@/components/ProjectsSection";
 import SkillsSection from "@/components/SkillsSection";
 
-export default function Home() {
-  const smootherRef = useRef(null);
-  const contentRef = useRef(null);
+export default function Home(): JSX.Element {
+  const smootherRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     // Register required GSAP plugins
@@ -39,7 +39,7 @@ export default function Home() {
     ScrollTrigger.refresh(true);
 
     // Create the hallway/stacking effect for each section with more conservative values
-    const sections = gsap.utils.toArray(".section");
+    const sections = gsap.utils.toArray<HTMLElement>(".section");
     sections.forEach((section, i) => {
       const nextSection = sections[i + 1];
       if (!nextSection) return;
@@ -69,8 +69,8 @@ export default function Home() {
     });
 
     // Parallax scrolling elements with more conservative settings
-    gsap.utils.toArray(".parallax-element").forEach((element) => {
-      const depth = element.dataset.depth || 0.1; // Keep default depth reasonable
+    gsap.utils.toArray<HTMLElement>(".parallax-element").forEach((element) => {
+      const depth = parseFloat(element.dataset.depth || "0.1"); // Keep default depth reasonable
       gsap.to(element, {
         y: () => window.innerHeight * depth * -0.5, // More conservative movement
         ease: "none",
@@ -84,9 +84,9 @@ export default function Home() {
     });
 
     // Elements that move horizontally with scroll - reduced speed
-    gsap.utils.toArray(".horizontal-scroll").forEach((element) => {
-      const direction = element.dataset.direction || 1;
-      const speed = element.dataset.speed || 50; // Reduced from higher values
+    gsap.utils.toArray<HTMLElement>(".horizontal-scroll").forEach((element) => {
+      const direction = parseInt(element.dataset.direction || "1");
+      const speed = parseInt(element.dataset.speed || "50"); // Reduced from higher values
 
       gsap.to(element, {
         x: direction * speed,
@@ -101,7 +101,7 @@ export default function Home() {
     });
 
     // Reveal elements on scroll with optimized timing
-    gsap.utils.toArray(".reveal-element").forEach((element) => {
+    gsap.utils.toArray<HTMLElement>(".reveal-element").forEach((element) => {
       gsap.from(element, {
         autoAlpha: 0,
         y: 20, // Reduced from 30 for subtler movement
@@ -140,7 +140,7 @@ export default function Home() {
 
     return () => {
       // Clean up all animations when component unmounts
-      smoother && smoother.kill();
+      if (smoother) smoother.kill();
       ScrollTrigger.getAll().forEach((st) => st.kill());
       if (document.body.contains(progressBar)) {
         document.body.removeChild(progressBar);

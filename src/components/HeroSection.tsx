@@ -75,16 +75,19 @@ export default function HeroSection() {
       });
 
       // Parallax effect on scroll
-      gsap.to(sectionRef.current.querySelectorAll(".parallax"), {
-        y: (i, el) => (parseFloat(el.dataset.speed) || 0.1) * -100,
-        ease: "none",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
+      if (sectionRef.current) {
+        const sectionEl = sectionRef.current as Element;
+        gsap.to(sectionEl.querySelectorAll(".parallax"), {
+          y: (i, el) => (parseFloat((el as HTMLElement).dataset.speed || "0.1")) * -100,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      }
     });
 
     return () => ctx.revert(); // Clean up animations

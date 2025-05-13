@@ -4,9 +4,9 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export default function SkillsSection() {
-  const sectionRef = useRef(null);
-  const headingRef = useRef(null);
-  const skillsRef = useRef(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+  const skillsRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -26,41 +26,43 @@ export default function SkillsSection() {
       });
 
       // Progress bar animations - optimized
-      const skillBars = skillsRef.current.querySelectorAll(".skill-progress");
-      skillBars.forEach((bar) => {
-        const progressValue = bar.getAttribute("data-progress");
-        const progressBar = bar.querySelector(".progress-fill");
+      if (skillsRef.current) {
+        const skillBars = skillsRef.current.querySelectorAll(".skill-progress");
+        skillBars.forEach((bar) => {
+          const progressValue = bar.getAttribute("data-progress");
+          const progressBar = bar.querySelector(".progress-fill");
 
-        gsap.fromTo(
-          progressBar,
-          { width: "0%" },
-          {
-            width: `${progressValue}%`,
-            duration: 1.2, // Slightly faster
-            ease: "power1.out", // Simpler easing
-            scrollTrigger: {
-              trigger: bar,
-              start: "top 85%", // Earlier trigger point
-              toggleActions: "play none none reverse",
-            },
-          }
-        );
-      });
+          gsap.fromTo(
+            progressBar,
+            { width: "0%" },
+            {
+              width: `${progressValue}%`,
+              duration: 1.2, // Slightly faster
+              ease: "power1.out", // Simpler easing
+              scrollTrigger: {
+                trigger: bar,
+                start: "top 85%", // Earlier trigger point
+                toggleActions: "play none none reverse",
+              },
+            }
+          );
+        });
 
-      // Skill icons animation - optimized for better performance
-      const skillIcons = skillsRef.current.querySelectorAll(".skill-icon");
-      gsap.from(skillIcons, {
-        scrollTrigger: {
-          trigger: skillsRef.current,
-          start: "top 80%", // Earlier trigger point
-          toggleActions: "play none none reverse",
-        },
-        scale: 0.8, // Less dramatic scale
-        opacity: 0,
-        duration: 0.6, // Faster animation
-        stagger: 0.08, // Faster stagger
-        ease: "back.out(1.5)", // Reduced overshoot
-      });
+        // Skill icons animation - optimized for better performance
+        const skillIcons = skillsRef.current.querySelectorAll(".skill-icon");
+        gsap.from(skillIcons, {
+          scrollTrigger: {
+            trigger: skillsRef.current,
+            start: "top 80%", // Earlier trigger point
+            toggleActions: "play none none reverse",
+          },
+          scale: 0.8, // Less dramatic scale
+          opacity: 0,
+          duration: 0.6, // Faster animation
+          stagger: 0.08, // Faster stagger
+          ease: "back.out(1.5)", // Reduced overshoot
+        });
+      }
 
       // Make sure this section integrates properly with scroll
       ScrollTrigger.create({

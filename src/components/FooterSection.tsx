@@ -76,7 +76,7 @@ export default function FooterSection() {
         <div>
           <h3 className="text-lg font-semibold mb-4">Contact Me</h3>
           <p className="text-gray-400 mb-4">
-            Have a project in mind? Let's build something awesome together.
+            Have a project in mind? Let&apos;s build something awesome together.
           </p>
           <a
             href="mailto:your.email@example.com"

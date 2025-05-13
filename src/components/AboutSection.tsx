@@ -1,13 +1,13 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { JSX, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-export default function AboutSection() {
-  const sectionRef = useRef(null);
-  const contentRef = useRef(null);
-  const imageRef = useRef(null);
-  const linesRef = useRef(null);
+export default function AboutSection(): JSX.Element {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const imageRef = useRef<HTMLDivElement | null>(null);
+  const linesRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -32,25 +32,30 @@ export default function AboutSection() {
       );
 
       // Text reveal animation synced with scroll
-      const textLines = contentRef.current.querySelectorAll(".reveal-line");
-      textLines.forEach((line, i) => {
-        tl.fromTo(
-          line,
-          { opacity: 0, y: 30 }, // Reduced y-offset
-          { opacity: 1, y: 0, duration: 0.4 }, // Faster animation
-          i * 0.15 // Slightly faster stagger
-        );
-      });
+      if (contentRef.current) {
+        const textLines =
+          contentRef.current.querySelectorAll<HTMLElement>(".reveal-line");
+        textLines.forEach((line, i) => {
+          tl.fromTo(
+            line,
+            { opacity: 0, y: 30 }, // Reduced y-offset
+            { opacity: 1, y: 0, duration: 0.4 }, // Faster animation
+            i * 0.15 // Slightly faster stagger
+          );
+        });
+      }
 
       // Animated lines that grow with scroll
-      const lines = linesRef.current.querySelectorAll(".line");
-      lines.forEach((line, i) => {
-        tl.fromTo(line, { scaleX: 0 }, { scaleX: 1, duration: 0.8 }, i * 0.2);
-      });
+      if (linesRef.current) {
+        const lines = linesRef.current.querySelectorAll<HTMLElement>(".line");
+        lines.forEach((line, i) => {
+          tl.fromTo(line, { scaleX: 0 }, { scaleX: 1, duration: 0.8 }, i * 0.2);
+        });
+      }
 
       // Create parallax effect for elements inside the section with reduced effect
-      gsap.utils.toArray(".parallax-item").forEach((element) => {
-        const speed = element.dataset.speed || 0.08; // Reduced default speed
+      gsap.utils.toArray<HTMLElement>(".parallax-item").forEach((element) => {
+        const speed = parseFloat(element.dataset.speed || "0.08"); // Reduced default speed
         gsap.to(element, {
           y: () => window.innerHeight * speed * -0.5, // More conservative movement
           ease: "none",
@@ -64,9 +69,9 @@ export default function AboutSection() {
       });
 
       // Counter animation that increases as you scroll
-      const counter = document.querySelector(".counter");
+      const counter = document.querySelector<HTMLElement>(".counter");
       if (counter) {
-        let counterVal = { value: 0 };
+        const counterVal = { value: 0 };
         tl.to(
           counterVal,
           {
@@ -205,7 +210,7 @@ export default function AboutSection() {
               {/* Grid decoration */}
               <div className="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-1 opacity-30">
                 {Array(16)
-                  .fill()
+                  .fill(0)
                   .map((_, i) => (
                     <div
                       key={i}
